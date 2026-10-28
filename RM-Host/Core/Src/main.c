@@ -104,6 +104,7 @@ Master_Init(); // ���������Ĵ��ڽ����ж�
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    Master_Poll();  // 主循环统一执行：转发到 PC / 重传请求（不占用中断时间）
   }
   /* USER CODE END 3 */
 }

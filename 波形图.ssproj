@@ -8,7 +8,7 @@
             "datasets": [
                 {
                     "datasetId": 0,
-                    "displayFormat": "0d",
+                    "displayFormat": "2d",
                     "displayTickCount": 5,
                     "fft": false,
                     "fftMax": 0,
@@ -36,7 +36,7 @@
                 },
                 {
                     "datasetId": 1,
-                    "displayFormat": "0d",
+                    "displayFormat": "2d",
                     "displayTickCount": 5,
                     "fft": false,
                     "fftMax": 0,
@@ -64,7 +64,7 @@
                 },
                 {
                     "datasetId": 2,
-                    "displayFormat": "0d",
+                    "displayFormat": "2d",
                     "displayTickCount": 5,
                     "fft": false,
                     "fftMax": 0,
@@ -143,11 +143,27 @@
             "busType": 0,
             "checksum": "",
             "checksumAlgorithm": "",
+            "connection": {
+                "autoReconnect": false,
+                "baudRate": 460800,
+                "dataBitsIndex": 3,
+                "deviceId": {
+                    "description": "USB-SERIAL CH340",
+                    "pid": "7523",
+                    "portName": "COM9",
+                    "vid": "1A86"
+                },
+                "dtr": true,
+                "flowControlIndex": 0,
+                "parityIndex": 0,
+                "portIndex": 2,
+                "stopBitsIndex": 0
+            },
             "decoder": 3,
             "decoderMethod": 3,
             "frameDetection": 1,
             "frameEnd": "0D",
-            "frameParserCode": "/**\n * Comma-Separated Values (CSV) Parser\n *\n * Parses comma-separated data into an array of values.\n *\n * INPUT FORMAT: \"a,b,c,d,e,f\"\n * OUTPUT ARRAY: [\"a\", \"b\", \"c\", \"d\", \"e\", \"f\"]\n *\n * Note: Frame delimiters are automatically removed by Serial Studio.\n */\n\n//------------------------------------------------------------------------------\n// Frame Parser Function\n//------------------------------------------------------------------------------\n\n/**\n * Parses a CSV frame into an array of values.\n *\n * @param {string} frame - The CSV data from the data source\n * @returns {array} Array of string values\n */\nfunction parse(frame) {\n  return frame.split(',');\n}\nfunction parse(frame) {\n    \n    \n    // 2. 解析四元数 (Float32，小端字节序)\n    const q0 = new Float32Array(new Uint8Array(frame.slice(3, 7)).buffer)[0];\n    const q1 = new Float32Array(new Uint8Array(frame.slice(7, 11)).buffer)[0];\n    const q2 = new Float32Array(new Uint8Array(frame.slice(11, 15)).buffer)[0];\n    const q3 = new Float32Array(new Uint8Array(frame.slice(15, 19)).buffer)[0];\n    \n    // 3. 解析欧拉角 (Int16，小端字节序，原值为角度 × 100)\n    const roll  = new Int16Array(new Uint8Array(frame.slice(19, 21)).buffer)[0] / 100.0;\n    const pitch = new Int16Array(new Uint8Array(frame.slice(21, 23)).buffer)[0] / 100.0;\n    const yaw   = new Int16Array(new Uint8Array(frame.slice(23, 25)).buffer)[0] / 100.0;\n    \n    // 4. 返回数值数组，顺序对应数据集 IDX 1~7\n    return [roll, pitch, yaw, q0, q1, q2, q3];\n}",
+            "frameParserCode": "/**\n * MPU6050 attitude frame parser (binary).\n * Frame delimiters AA 55 / 0D are removed by Serial Studio;\n * parse() receives 24 bytes: [0]=type, [1..4]=q0, [5..8]=q1, [9..12]=q2,\n * [13..16]=q3, [17..18]=roll*100, [19..20]=pitch*100, [21..22]=yaw*100, [23]=CRC8.\n */\nfunction parse(frame) {\n    function f32(a) { return new Float32Array(new Uint8Array(a).buffer)[0]; }\n    function i16(a) { return new Int16Array(new Uint8Array(a).buffer)[0]; }\n    const q0 = f32(frame.slice(1, 5));\n    const q1 = f32(frame.slice(5, 9));\n    const q2 = f32(frame.slice(9, 13));\n    const q3 = f32(frame.slice(13, 17));\n    const roll  = i16(frame.slice(17, 19)) / 100.0;\n    const pitch = i16(frame.slice(19, 21)) / 100.0;\n    const yaw   = i16(frame.slice(21, 23)) / 100.0;\n    return [roll, pitch, yaw, q0, q1, q2, q3];\n}",
             "frameParserParams": {
                 "quoteChar": "",
                 "separator": ",",
@@ -169,8 +185,8 @@
         "波形图/Dashboard Widgets": true,
         "波形图/Dashboard Widgets/姿态角": true,
         "波形图/Dashboard Widgets/姿态角/pitch": false,
-        "波形图/Dashboard Widgets/姿态角/pitch (1)": false,
         "波形图/Dashboard Widgets/姿态角/roll": false,
+        "波形图/Dashboard Widgets/姿态角/yaw": false,
         "波形图/Data Export": true,
         "波形图/Data Export/InfluxDB Sink": false,
         "波形图/Data Export/MQTT Publisher": false,

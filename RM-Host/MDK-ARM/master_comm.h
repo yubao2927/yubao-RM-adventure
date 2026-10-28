@@ -2,11 +2,12 @@
 #define __MASTER_COMM_H
 
 #include "main.h"
-extern uint8_t rx_byte;      // ¼ÓÉÏÕâÒ»ĞĞ
-extern uint8_t pc_rx_byte;   // ¼ÓÉÏÕâÒ»ĞĞ
-// º¯ÊıÉùÃ÷
+extern uint8_t rx_byte;      // åŠ ä¸Šè¿™ä¸€è¡Œ
+extern uint8_t pc_rx_byte;   // åŠ ä¸Šè¿™ä¸€è¡Œ
+// å‡½æ•°å£°æ˜
 void Master_Init(void);
 void Master_ProcessByte(uint8_t byte);
+void Master_Poll(void);              // ä¸»å¾ªç¯è°ƒç”¨ï¼šç»Ÿä¸€æ‰§è¡Œè½¬å‘/é‡ä¼ ï¼Œä¸åœ¨ä¸­æ–­é‡Œé˜»å¡å‘é€
 void Master_RequestRetransmit(void);
 void PC_ProcessCommand(uint8_t byte);
 uint8_t CRC8_Calc(uint8_t *data, uint16_t len);
